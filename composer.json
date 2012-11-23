@@ -1,7 +1,7 @@
 {
-	"name": "primal/jsonerrorhandler",
-	"description": "Quick trigger class for causing all errors and exceptions to output as JSON formatted objects",
-	"homepage": "http://github.com/PrimalPHP/JSONErrorHandler",
+	"name": "primal/errorhandler",
+	"description": "Quick trigger class for handling all errors and exceptions internally. Defaults to outputting as JSON data",
+	"homepage": "http://github.com/PrimalPHP/ErrorHandler",
 	"license": "MIT",
 	"keywords": ["http", "error", "json", "crash", "exceptions"],
 	"authors": [

@@ -2,23 +2,24 @@
 
 namespace Primal;
 
-class JSONErrorHandler {
+class ErrorHandler {
 	
-	private static $initialized = false;
-	
-	function __construct() {
-		if (static::$initialized) return;
-		
-		static::$initialized = true;
-		
+	public function __construct($callback = null) {
+		ini_set('display_errors', 'off');
 		ini_set('html_errors', 'off');
+		
+		if ($callback === null) {
+			$callback = function ($data) {
+				header('Content-type: application/json', 500);
+				echo json_encode($data);
+			};
+		}
 		
 		$caught = false;
 		
-		set_exception_handler(function ($ex) use ($caught) {
+		set_exception_handler(function ($ex) use ($caught, $callback) {
 			$caught = true;
-			header('Content-type: application/json', 500);
-			echo json_encode(array(
+			$callback(array(
 				'crash'=>array(
 					'type'=>'Unhandled '.get_class($ex),
 					'level'=>$ex->getCode(),
@@ -31,10 +32,9 @@ class JSONErrorHandler {
 			exit;
 		});
 
-		set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) use ($caught) {
+		set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) use ($caught, $callback) {
 			$caught = true;
-			header('Content-type: application/json', 500);
-			echo json_encode(array(
+			$callback(array(
 				'crash'=>array(
 					'type'=>'RuntimeError',
 					'level'=>$errno,
@@ -49,10 +49,9 @@ class JSONErrorHandler {
 		}, error_reporting());
 		
 		
-		register_shutdown_function(function ()  use ($caught){
+		register_shutdown_function(function ()  use ($caught, $callback){
 			if (($error = error_get_last()) && !$caught) {
-				header('Content-type: application/json', 500);
-				echo json_encode(array(
+				$callback(array(
 					'crash'=>array(
 						'type'=>'Fatal Error',
 						'level'=>$error['type'],
@@ -67,7 +66,7 @@ class JSONErrorHandler {
 		});
 	}
 	
-	public static function Init() {
-		return new static();
+	public static function Init($callback = null) {
+		return new static($callback);
 	}
 }
