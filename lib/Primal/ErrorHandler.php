@@ -36,6 +36,13 @@ class ErrorHandler {
 
 		set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) use ($caught, $callback) {
 			$caught = true;
+			if (function_exists('xdebug_get_function_stack')) {
+				$trace = array_reverse(xdebug_get_function_stack());
+			} else {
+				$trace = debug_backtrace();
+			}
+			array_shift($trace);
+			
 			$callback(array(
 				'crash'=>array(
 					'type'=>'RuntimeError',
@@ -69,6 +76,12 @@ class ErrorHandler {
 			);
 
 			if (isset($fatals[$error['type']])) {
+				if (function_exists('xdebug_get_function_stack')) {
+					$trace = array_reverse(xdebug_get_function_stack());
+				} else {
+					$trace = debug_backtrace();
+				}
+				array_shift($trace);
 				
 				$callback(array(
 					'crash'=>array(
@@ -77,7 +90,7 @@ class ErrorHandler {
 						'message'=>$error['message'],
 						'file'=>$error['file'],
 						'line'=>$error['line'],
-						'trace'=>debug_backtrace()
+						'trace'=>$trace
 					)
 				));
 				exit;
