@@ -48,7 +48,7 @@ class ErrorHandler {
 				)
 			));
 			exit;
-		}, error_reporting());
+		}, $level);
 		
 		
 		register_shutdown_function(function ()  use ($caught, $callback){
