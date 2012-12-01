@@ -4,10 +4,12 @@ namespace Primal;
 
 class ErrorHandler {
 	
-	public function __construct($callback = null) {
+	public function __construct($callback = null, $level = null) {
 		ini_set('display_errors', 'off');
 		ini_set('html_errors', 'off');
 		
+		if ($level !== null) $level = error_reporting();
+		error_reporting(0);
 		if ($callback === null) {
 			$callback = function ($data) {
 				header('Content-type: application/json', 500);
@@ -42,7 +44,7 @@ class ErrorHandler {
 					'file'=>$errfile,
 					'line'=>$errline,
 					'context'=>$errcontext,
-					'trace'=>debug_backtrace()
+					'trace'=>$trace
 				)
 			));
 			exit;
