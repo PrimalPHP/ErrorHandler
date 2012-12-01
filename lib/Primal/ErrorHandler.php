@@ -52,7 +52,24 @@ class ErrorHandler {
 		
 		
 		register_shutdown_function(function ()  use ($caught, $callback){
-			if (($error = error_get_last()) && !$caught) {
+			//if error exists and an error wasn't previously caught and the error is allowed under error_reporting, handle it
+
+			if (!($error = error_get_last())) {
+				return;
+			}
+			
+			$fatals = array(
+			    E_USER_ERROR      => 'Fatal Error',
+			    E_ERROR           => 'Fatal Error',
+			    E_PARSE           => 'Parse Error', 
+			    E_CORE_ERROR      => 'Core Error',
+			    E_CORE_WARNING    => 'Core Warning',
+			    E_COMPILE_ERROR   => 'Compile Error',
+			    E_COMPILE_WARNING => 'Compile Warning'
+			);
+
+			if (isset($fatals[$error['type']])) {
+				
 				$callback(array(
 					'crash'=>array(
 						'type'=>'Fatal Error',
